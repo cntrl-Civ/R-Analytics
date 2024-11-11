@@ -9,10 +9,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
 
 ```{r}
 library(rvest)
 library(magrittr)
+library(stringr)
 
 url <- "https://www.imdb.com/chart/toptv/?ref_=nv_tvv_250"
 
@@ -26,8 +28,9 @@ head(titles, 50)
 rating <- page %>%html_nodes(".ipc-rating-star--rating") %>%html_text()
 
 rating
-
 ```
+
+
 ```{r}
 episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
 eps_clean <- str_extract(episodes, "\\d+(?= eps)")
@@ -35,23 +38,25 @@ number_of_episodes <- eps_clean[!is.na(eps_clean)]
 print(number_of_episodes)
 ```
 
-```{r}
-  episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
 
-# Extract year using regular expression (look for 4 digits)
+```{r}
+episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
+
+
 year_release <- str_extract(episodes, "\\d{4}")
 
-# Remove potential NAs
+
 year_release <- year_release[!is.na(year_release)]
 
-# Convert year to numeric
+
 year_release <- as.numeric(year_release)
 
 print(year_release)
-
 ```
+
+
 ```{r}
-df <- data.frame(ranking,titles,number_of_episodes,year_release,rating)
+df <- data.frame(ranking,titles, number_of_episodes, year_release,rating)
 df
 ```
 
