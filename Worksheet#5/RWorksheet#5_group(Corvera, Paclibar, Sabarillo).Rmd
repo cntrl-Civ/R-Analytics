@@ -1,0 +1,13 @@
+---
+title: "RWorksheet#5_group(Corvera, Paclibar, Sabarillo)"
+author: "Rotciv Corvera, Jhon Albert Paclibar, Kirk Axl Dend Sabarillo"
+date: "2024-11-11"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
