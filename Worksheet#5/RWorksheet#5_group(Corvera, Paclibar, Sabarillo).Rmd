@@ -12,11 +12,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+```{r}
 library(rvest)
 library(magrittr)
+library(polite)
 library(stringr)
+library(dplyr)
 
+user_agent <- "Educational Scraper (kirkaxldend.sabarillo@gmail.com)"
 url <- "https://www.imdb.com/chart/toptv/?ref_=nv_tvv_250"
+session <- bow(url, user_agent = user_agent)
+
+session
+ 
+page <- scrape(session)
 
 page <- read_html(url)
 
