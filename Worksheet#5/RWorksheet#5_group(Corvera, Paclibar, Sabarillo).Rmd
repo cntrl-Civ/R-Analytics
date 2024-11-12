@@ -21,42 +21,72 @@ url <- "https://www.imdb.com/chart/toptv/?ref_=nv_tvv_250"
 page <- read_html(url)
 
 titles <- page %>%html_nodes(".ipc-title-link-wrapper") %>%html_text()
-ranking <- 1:25
 
-head(titles, 50)
+titles
+```
 
+
+```{r}
 rating <- page %>%html_nodes(".ipc-rating-star--rating") %>%html_text()
 
 rating
 ```
 
+```{r}
+vote_count<- page %>%html_nodes(".ipc-rating-star--voteCount") %>%html_text()
+
+vote_count
+```
 
 ```{r}
 episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
 eps_clean <- str_extract(episodes, "\\d+(?= eps)")
 number_of_episodes <- eps_clean[!is.na(eps_clean)]
+
 print(number_of_episodes)
 ```
 
-
 ```{r}
-episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
+  episodes <- page %>% html_nodes("span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item") %>% html_text()
 
-
+# Extract year using regular expression (look for 4 digits)
 year_release <- str_extract(episodes, "\\d{4}")
 
-
+# Remove potential NAs
 year_release <- year_release[!is.na(year_release)]
 
-
+# Convert year to numeric
 year_release <- as.numeric(year_release)
 
 print(year_release)
+
 ```
 
+```{r}
+critic_reviews<- page %>%html_nodes(".ipc-page-grid__item ") %>%html_text()
+critic_reviews
+
+```
 
 ```{r}
-df <- data.frame(ranking,titles, number_of_episodes, year_release,rating)
+df <- data.frame(ranking,titles,number_of_episodes,vote_count,year_release,rating)
+
 df
 ```
 
+```{r}
+library(ggplot2)
+year_count <- df %>%
+  group_by(year_release) %>%
+  summarise(count = n()) %>%
+  arrange(year_release)
+
+ggplot(year_count, aes(x = year_release, y = count)) +
+  geom_line(color = "blue") +
+  geom_point(color = "red") +
+  labs(title = "Number of Top TV Shows Released by Year", x = "Year", y = "Number of TV Shows") +
+  theme_minimal()
+
+most_releases <- year_count %>% filter(count == max(count))
+print(most_releases)
+```
