@@ -27,21 +27,25 @@ url <- "https://www.imdb.com/chart/toptv/?sort=rank%2Casc"
 title_list <- read_html(url) %>%
   html_nodes('.ipc-title__text') %>%
   html_text()
+```
 
+
+```{r}
 #Clean extracted text
 title_list_sub <- as.data.frame(title_list[3:27], stringsAsFactors = FALSE)
 colnames(title_list_sub) <- "ranks"
-
 split_df <- strsplit(as.character(title_list_sub$ranks), "\\.", fixed = FALSE)
 split_df <- data.frame(do.call(rbind, split_df), stringsAsFactors = FALSE)
 
 colnames(split_df) <- c("rank", "title")
-split_df <- split_df %>% select(rank, title)
+split_df <- split_df %>% dplyr::select(rank, title)
 
 split_df$title <- trimws(split_df$title)
 
 rank_title <- split_df
+```
 
+```{r}
 #get tv rating, the number of people who voted, the number of episodes, and the year it was released.
 rating_ls <- read_html(url) %>%
   html_nodes('.ipc-rating-star--rating') %>%
@@ -52,13 +56,20 @@ voter_ls <- read_html(url) %>%
   html_text()
 clean_votes <- gsub('[()]', '', voter_ls)
 
+```
+
+```{r}
 #get the number of episodes
 eps_ls <- read_html(url) %>%
   html_nodes('span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item:nth-of-type(2)') %>%
   html_text()
 clean_eps <- gsub('[eps]', '', eps_ls)
 num_eps <- as.numeric(clean_eps)
+```
 
+
+
+```{r}
 #get year released 
 years <- read_html(url) %>%
   html_nodes('span.sc-5bc66c50-6.OOdsw.cli-title-metadata-item:nth-of-type(1)') %>%
@@ -74,6 +85,9 @@ top_tv_shows <- data.frame(
   stringsAsFactors = FALSE
 )
 
+```
+
+```{r}
 #Number of user reviews
 home_link <- 'https://www.imdb.com/chart/toptv/'
 main_page <- read_html(home_link)
@@ -81,7 +95,9 @@ main_page <- read_html(home_link)
 links <- main_page %>%
   html_nodes("a.ipc-title-link-wrapper") %>%
   html_attr("href")
+```
 
+```{r}
 #get link of each show's page
 show_data <- lapply(links, function(link) {
   complete_link <- paste0("https://imdb.com", link)
@@ -109,13 +125,12 @@ show_data <- lapply(links, function(link) {
     html_nodes('[data-testid="tturv-total-reviews"]') %>%
     html_text()
   
-  return(data.frame(Show_Link = complete_link, User_Reviews = usrv_count, Critic = critic_df, Popularity_Rating = pop_rating)) 
+  return(data.frame( User_Reviews = usrv_count, Critic = critic_df, Popularity_Rating = pop_rating)) 
 })
 
-show_url_df <- do.call(rbind, show_data)
-show_url_df
+ critics_df <- do.call(rbind, show_data)
 
-shows <- cbind(top_tv_shows, show_url_df)
+shows <- cbind(top_tv_shows, critics_df)
 shows
 ```
 
@@ -175,7 +190,7 @@ text_reviews <- session %>%
   head(20)
 
 # Ensure each column has exactly 20 entries, filling with NA if fewer than 20 were scraped
-reviewer_name <- c(reviewer_name, rep(NA, 20 - length(reviewer_name)))[1:20]
+reviewer_name <- c(reviewer_name, rep(NA, 20 - length(reviewer_name)))[1:16,1:21]
 review_date <- c(review_date, rep(NA, 20 - length(review_date)))[1:20]
 user_rating <- c(user_rating, rep(NA, 20 - length(user_rating)))[1:20]
 review_title <- c(review_title, rep(NA, 20 - length(review_title)))[1:20]
@@ -566,6 +581,7 @@ print(most_shows_year)
 ```
 
 
+
 2. Extracting Amazon Product Reviews
 ```{r}
 #4. URLs
@@ -694,4 +710,3 @@ ranked_combined_df <- ranked_combined_df %>%
 
 print(ranked_combined_df)
 ```
-
